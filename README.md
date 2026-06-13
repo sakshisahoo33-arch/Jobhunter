@@ -19,6 +19,12 @@ Job Hunter is a simple web application that allows users to register, log in, up
 * MySQL
 * Git & GitHub
 
+## Team Members.
+
+* Frontend part
+* Backend part
+* Database
+
 
 ## Future Enhancements
 
