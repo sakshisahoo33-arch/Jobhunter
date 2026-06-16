@@ -1,7 +1,7 @@
 # Jobhunter
 # Job Hunter Website
 
-Job Hunter is a simple web application that allows users to register, log in, upload their resumes and log out. The project is being developed as a team project using HTML, CSS, Java, MySQL, and GitHub.
+Job Hunter is a simple web application that allows users to register, log in,dashboard which helps to upload their resumes and log out. The project is being developed as a team project using HTML, CSS, Java, MySQL, and GitHub.
 
 ## Features
 * User Registration
@@ -33,6 +33,7 @@ Job Hunter is a simple web application that allows users to register, log in, up
 * User Authentication
 * Database Integration
 * Admin Panel
+* Job apply Functionality
 
 ## Author
 
