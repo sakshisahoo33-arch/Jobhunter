@@ -14,8 +14,8 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Map;
 
-@WebServlet(name = "ApplyJobServlet", urlPatterns = {"/apply"})
-public class ApplyJobServlet extends HttpServlet {
+@WebServlet(name = "ApplyServlet", urlPatterns = {"/apply"})
+public class ApplyServlet extends HttpServlet {
 
     private final Gson gson = new Gson();
     private final ApplicationDAO applicationDAO = new ApplicationDAO();
@@ -26,7 +26,7 @@ public class ApplyJobServlet extends HttpServlet {
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            resp.getWriter().write(gson.toJson(Map.of("error", "User authentication required")));
+            resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "User authentication required")));
             return;
         }
 
@@ -40,7 +40,7 @@ public class ApplyJobServlet extends HttpServlet {
 
             if (jobIdStr == null) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                resp.getWriter().write(gson.toJson(Map.of("error", "Missing jobId")));
+                resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Missing jobId")));
                 return;
             }
 
@@ -49,7 +49,7 @@ public class ApplyJobServlet extends HttpServlet {
 
             if (applicationDAO.hasAlreadyApplied(userId, jobId)) {
                 resp.setStatus(HttpServletResponse.SC_CONFLICT);
-                resp.getWriter().write(gson.toJson(Map.of("error", "Already applied")));
+                resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Already applied")));
                 return;
             }
 
@@ -62,18 +62,18 @@ public class ApplyJobServlet extends HttpServlet {
             Application created = applicationDAO.applyJob(a);
             if (created == null) {
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().write(gson.toJson(Map.of("error", "Failed to apply")));
+                resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Failed to apply")));
                 return;
             }
 
             resp.setStatus(HttpServletResponse.SC_CREATED);
-            resp.getWriter().write(gson.toJson(created));
+            resp.getWriter().write(gson.toJson(Map.of("success", true, "application", created)));
         } catch (NumberFormatException nfe) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write(gson.toJson(Map.of("error", "Invalid numeric parameter")));
+            resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Invalid numeric parameter")));
         } catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write(gson.toJson(Map.of("error", e.getMessage())));
+            resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Internal server error")));
         }
     }
 
@@ -83,7 +83,7 @@ public class ApplyJobServlet extends HttpServlet {
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            resp.getWriter().write(gson.toJson(Map.of("error", "User authentication required")));
+            resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "User authentication required")));
             return;
         }
 
@@ -95,7 +95,7 @@ public class ApplyJobServlet extends HttpServlet {
             resp.getWriter().write(gson.toJson(list));
         } catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write(gson.toJson(Map.of("error", e.getMessage())));
+            resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Internal server error")));
         }
     }
 }
