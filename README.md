@@ -6,9 +6,13 @@ Job Hunter is a simple web application that allows users to register, log in,das
 ## Features
 * User Registration
 * User Login
+* Recruiter Login
 * Dashboard
 * Resume Upload
 * User Profile
+* Recruiter Profile
+* Job search
+* Job finds
 * Logout Functionality
 
 ## Technologies Used
