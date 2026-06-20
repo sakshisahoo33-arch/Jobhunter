@@ -4,6 +4,7 @@ This folder contains:
 
 - JobHunterDB.sql
 - ER Diagram
+- example queries for the backend
 
 Import Instructions:
 
