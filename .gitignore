@@ -1,0 +1,17 @@
+# Maven
+**/target/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Logs
+*.log
+
+# Operating System
+.DS_Store
+Thumbs.db
+
+# Local database configuration
+backend/src/main/resources/db.properties

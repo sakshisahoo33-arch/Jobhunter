@@ -1,42 +1,42 @@
 package com.jobhunter.model;
 
 public class Job {
-    private int id;
+    private int jobId;
     private int companyId;
     private String title;
     private String description;
     private String location;
-    private String salary;
-    private String status;
+    private double salaryMin;
+    private double salaryMax;
 
     public Job() {
     }
 
-    public Job(int id, int companyId, String title, String description, String location, String salary, String status) {
-        this.id = id;
+    public Job(int jobId, int companyId, String title, String description, String location, double salaryMin, double salaryMax) {
+        this.jobId = jobId;
         this.companyId = companyId;
         this.title = title;
         this.description = description;
         this.location = location;
-        this.salary = salary;
-        this.status = status;
+        this.salaryMin = salaryMin;
+        this.salaryMax = salaryMax;
     }
 
-    public Job(int companyId, String title, String description, String location, String salary, String status) {
+    public Job(int companyId, String title, String description, String location, double salaryMin, double salaryMax) {
         this.companyId = companyId;
         this.title = title;
         this.description = description;
         this.location = location;
-        this.salary = salary;
-        this.status = status;
+        this.salaryMin = salaryMin;
+        this.salaryMax = salaryMax;
     }
 
-    public int getId() {
-        return id;
+    public int getJobId() {
+        return jobId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setJobId(int jobId) {
+        this.jobId = jobId;
     }
 
     public int getCompanyId() {
@@ -71,31 +71,31 @@ public class Job {
         this.location = location;
     }
 
-    public String getSalary() {
-        return salary;
+    public double getSalaryMin() {
+        return salaryMin;
     }
 
-    public void setSalary(String salary) {
-        this.salary = salary;
+    public void setSalaryMin(double salaryMin) {
+        this.salaryMin = salaryMin;
     }
 
-    public String getStatus() {
-        return status;
+    public double getSalaryMax() {
+        return salaryMax;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setSalaryMax(double salaryMax) {
+        this.salaryMax = salaryMax;
     }
 
     @Override
     public String toString() {
         return "Job{" +
-                "id=" + id +
+                "jobId=" + jobId +
                 ", companyId=" + companyId +
                 ", title='" + title + '\'' +
                 ", location='" + location + '\'' +
-                ", salary='" + salary + '\'' +
-                ", status='" + status + '\'' +
+                ", salaryMin=" + salaryMin +
+                ", salaryMax=" + salaryMax +
                 '}';
     }
 }

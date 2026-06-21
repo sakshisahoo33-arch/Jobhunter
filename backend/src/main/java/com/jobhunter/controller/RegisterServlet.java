@@ -1,9 +1,7 @@
 package com.jobhunter.controller;
 
 import com.google.gson.Gson;
-import com.jobhunter.dao.CompanyDAO;
 import com.jobhunter.dao.UserDAO;
-import com.jobhunter.model.Company;
 import com.jobhunter.model.User;
 
 import jakarta.servlet.ServletException;
@@ -13,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 @WebServlet(name = "RegisterServlet", urlPatterns = {"/register"})
@@ -26,14 +23,12 @@ public class RegisterServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
         try {
-            // User registration only (simplified)
-            String firstName = req.getParameter("first_name");
-            String lastName = req.getParameter("last_name");
+            String fullName = req.getParameter("full_name");
             String email = req.getParameter("email");
             String password = req.getParameter("password");
             String phone = req.getParameter("phone");
 
-            if (firstName == null || lastName == null || email == null || password == null) {
+            if (fullName == null || email == null || password == null) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Missing required fields")));
                 return;
@@ -46,8 +41,7 @@ public class RegisterServlet extends HttpServlet {
             }
 
             User u = new User();
-            u.setFirstName(firstName);
-            u.setLastName(lastName);
+            u.setFullName(fullName);
             u.setEmail(email);
             u.setPassword(password);
             u.setPhone(phone);
@@ -63,7 +57,10 @@ public class RegisterServlet extends HttpServlet {
             resp.getWriter().write(gson.toJson(Map.of("success", true, "message", "User registered", "user", created)));
         } catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Internal server error")));
+            resp.getWriter().write(gson.toJson(Map.of(
+                "success", false,
+                "message", "Internal server error"
+            )));
         }
     }
 }

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Resume</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<h1>Upload Resume</h1>
+
+<form id="upload-form" enctype="multipart/form-data" method="post" action="resume/upload">
+    <input type="file" name="file" required><br><br>
+    <button type="submit">Upload</button>
+</form>
+
+<div id="upload-message"></div>
+
+<br>
+<a href="dashboard.html"><button type="button">Back to Dashboard</button></a>
+
+<script>
+const uploadForm = document.getElementById('upload-form');
+const uploadMessage = document.getElementById('upload-message');
+uploadForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const response = await fetch('resume/upload', {
+        method: 'POST',
+        body: new FormData(uploadForm)
+    });
+    const result = await response.json();
+    if (response.ok) {
+        uploadMessage.textContent = 'Resume uploaded successfully.';
+    } else {
+        uploadMessage.textContent = result.error || 'Resume upload failed.';
+    }
+});
+</script>
+
+</body>
+</html>

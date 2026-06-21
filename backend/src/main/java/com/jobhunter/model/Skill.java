@@ -1,54 +1,42 @@
 package com.jobhunter.model;
 
 public class Skill {
-    private int id;
-    private String name;
-    private String description;
+    private int skillId;
+    private String skillName;
 
     public Skill() {
     }
 
-    public Skill(int id, String name, String description) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
+    public Skill(int skillId, String skillName) {
+        this.skillId = skillId;
+        this.skillName = skillName;
     }
 
-    public Skill(String name, String description) {
-        this.name = name;
-        this.description = description;
+    public Skill(String skillName) {
+        this.skillName = skillName;
     }
 
-    public int getId() {
-        return id;
+    public int getSkillId() {
+        return skillId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setSkillId(int skillId) {
+        this.skillId = skillId;
     }
 
-    public String getName() {
-        return name;
+    public String getSkillName() {
+        return skillName;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public void setSkillName(String skillName) {
+        this.skillName = skillName;
     }
 
     @Override
     public String toString() {
         return "Skill{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
+                "skillId=" + skillId +
+                ", skillName='" + skillName + '\'' +
                 '}';
     }
 }

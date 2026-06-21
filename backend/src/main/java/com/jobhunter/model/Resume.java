@@ -1,7 +1,7 @@
 package com.jobhunter.model;
 
 public class Resume {
-    private int id;
+    private int resumeId;
     private int userId;
     private String fileName;
     private String filePath;
@@ -9,8 +9,8 @@ public class Resume {
     public Resume() {
     }
 
-    public Resume(int id, int userId, String fileName, String filePath) {
-        this.id = id;
+    public Resume(int resumeId, int userId, String fileName, String filePath) {
+        this.resumeId = resumeId;
         this.userId = userId;
         this.fileName = fileName;
         this.filePath = filePath;
@@ -22,12 +22,12 @@ public class Resume {
         this.filePath = filePath;
     }
 
-    public int getId() {
-        return id;
+    public int getResumeId() {
+        return resumeId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setResumeId(int resumeId) {
+        this.resumeId = resumeId;
     }
 
     public int getUserId() {
@@ -57,7 +57,7 @@ public class Resume {
     @Override
     public String toString() {
         return "Resume{" +
-                "id=" + id +
+                "resumeId=" + resumeId +
                 ", userId=" + userId +
                 ", fileName='" + fileName + '\'' +
                 ", filePath='" + filePath + '\'' +

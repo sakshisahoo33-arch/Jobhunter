@@ -1,15 +1,15 @@
 package com.jobhunter.model;
 
 public class SavedJob {
-    private int id;
+    private int savedId;
     private int userId;
     private int jobId;
 
     public SavedJob() {
     }
 
-    public SavedJob(int id, int userId, int jobId) {
-        this.id = id;
+    public SavedJob(int savedId, int userId, int jobId) {
+        this.savedId = savedId;
         this.userId = userId;
         this.jobId = jobId;
     }
@@ -19,12 +19,12 @@ public class SavedJob {
         this.jobId = jobId;
     }
 
-    public int getId() {
-        return id;
+    public int getSavedId() {
+        return savedId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setSavedId(int savedId) {
+        this.savedId = savedId;
     }
 
     public int getUserId() {
@@ -46,7 +46,7 @@ public class SavedJob {
     @Override
     public String toString() {
         return "SavedJob{" +
-                "id=" + id +
+                "savedId=" + savedId +
                 ", userId=" + userId +
                 ", jobId=" + jobId +
                 '}';

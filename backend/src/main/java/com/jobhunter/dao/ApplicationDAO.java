@@ -12,35 +12,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DAO for the `Applications` table.
+ * DAO for the `applications` table.
  * Uses prepared statements and try-with-resources. No business logic.
  */
 public class ApplicationDAO {
 
     /** Apply for a job. Returns application with generated id, or null on failure. */
     public Application applyJob(Application application) {
-        final String sql = "INSERT INTO Applications (user_id, job_id, resume_id, cover_letter, status) VALUES (?, ?, ?, ?, ?)";
+        final String sql = "INSERT INTO applications (user_id, job_id, status) VALUES (?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, application.getUserId());
             ps.setInt(2, application.getJobId());
-
-            if (application.getResumeId() > 0) {
-                ps.setInt(3, application.getResumeId());
-            } else {
-                ps.setNull(3, java.sql.Types.INTEGER);
-            }
-
-            ps.setString(4, application.getCoverLetter());
-            ps.setString(5, application.getStatus() != null ? application.getStatus() : "PENDING");
+            ps.setString(3, application.getStatus() != null ? application.getStatus() : "Pending");
 
             int affected = ps.executeUpdate();
             if (affected == 0) return null;
 
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (keys.next()) {
-                    application.setId(keys.getInt(1));
+                    application.setApplicationId(keys.getInt(1));
                     return application;
                 }
             }
@@ -52,12 +44,12 @@ public class ApplicationDAO {
     }
 
     /** Retrieve an application by id. */
-    public Application getApplicationById(int id) {
-        final String sql = "SELECT id, user_id, job_id, resume_id, cover_letter, status FROM Applications WHERE id = ?";
+    public Application getApplicationById(int applicationId) {
+        final String sql = "SELECT application_id, user_id, job_id, status FROM applications WHERE application_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, id);
+            ps.setInt(1, applicationId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return mapRow(rs);
             }
@@ -69,7 +61,7 @@ public class ApplicationDAO {
 
     /** Get all applications for a user. */
     public List<Application> getApplicationsByUser(int userId) {
-        final String sql = "SELECT id, user_id, job_id, resume_id, cover_letter, status FROM Applications WHERE user_id = ? ORDER BY applied_at DESC";
+        final String sql = "SELECT application_id, user_id, job_id, status FROM applications WHERE user_id = ? ORDER BY application_date DESC";
         List<Application> list = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -86,7 +78,7 @@ public class ApplicationDAO {
 
     /** Get all applications for a job. */
     public List<Application> getApplicationsByJob(int jobId) {
-        final String sql = "SELECT id, user_id, job_id, resume_id, cover_letter, status FROM Applications WHERE job_id = ? ORDER BY applied_at DESC";
+        final String sql = "SELECT application_id, user_id, job_id, status FROM applications WHERE job_id = ? ORDER BY application_date DESC";
         List<Application> list = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -103,8 +95,8 @@ public class ApplicationDAO {
 
     /** Get applicants (applications) for all jobs belonging to a company. */
     public List<Application> getApplicantsForCompany(int companyId) {
-        final String sql = "SELECT a.id, a.user_id, a.job_id, a.resume_id, a.cover_letter, a.status " +
-                "FROM Applications a JOIN Jobs j ON a.job_id = j.id WHERE j.company_id = ? ORDER BY a.applied_at DESC";
+        final String sql = "SELECT a.application_id, a.user_id, a.job_id, a.status " +
+                "FROM applications a JOIN jobs j ON a.job_id = j.job_id WHERE j.company_id = ? ORDER BY a.application_date DESC";
         List<Application> list = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -121,7 +113,7 @@ public class ApplicationDAO {
 
     /** Update only the application status. Returns true if updated. */
     public boolean updateApplicationStatus(int applicationId, String status) {
-        final String sql = "UPDATE Applications SET status = ? WHERE id = ?";
+        final String sql = "UPDATE applications SET status = ? WHERE application_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -136,7 +128,7 @@ public class ApplicationDAO {
 
     /** Delete an application by id. */
     public boolean deleteApplication(int applicationId) {
-        final String sql = "DELETE FROM Applications WHERE id = ?";
+        final String sql = "DELETE FROM applications WHERE application_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -150,7 +142,7 @@ public class ApplicationDAO {
 
     /** Check whether a user already applied to a job. */
     public boolean hasAlreadyApplied(int userId, int jobId) {
-        final String sql = "SELECT 1 FROM Applications WHERE user_id = ? AND job_id = ?";
+        final String sql = "SELECT 1 FROM applications WHERE user_id = ? AND job_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -166,12 +158,9 @@ public class ApplicationDAO {
 
     private Application mapRow(ResultSet rs) throws SQLException {
         Application a = new Application();
-        a.setId(rs.getInt("id"));
+        a.setApplicationId(rs.getInt("application_id"));
         a.setUserId(rs.getInt("user_id"));
         a.setJobId(rs.getInt("job_id"));
-        int resumeId = rs.getInt("resume_id");
-        if (!rs.wasNull()) a.setResumeId(resumeId);
-        a.setCoverLetter(rs.getString("cover_letter"));
         a.setStatus(rs.getString("status"));
         return a;
     }

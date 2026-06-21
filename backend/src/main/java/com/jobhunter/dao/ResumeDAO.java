@@ -12,14 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DAO for the `Resumes` table.
+ * DAO for the `resumes` table.
  * Uses JDBC, PreparedStatement and try-with-resources.
  */
 public class ResumeDAO {
 
     /** Upload a resume. Returns the Resume with generated id, or null on failure. */
     public Resume uploadResume(Resume resume) {
-        final String sql = "INSERT INTO Resumes (user_id, file_name, file_path) VALUES (?, ?, ?)";
+        final String sql = "INSERT INTO resumes (user_id, file_name, file_path) VALUES (?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -32,7 +32,7 @@ public class ResumeDAO {
 
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (keys.next()) {
-                    resume.setId(keys.getInt(1));
+                    resume.setResumeId(keys.getInt(1));
                     return resume;
                 }
             }
@@ -45,13 +45,13 @@ public class ResumeDAO {
 
     /** Update resume metadata (file name/path). Returns true if updated. */
     public boolean updateResume(Resume resume) {
-        final String sql = "UPDATE Resumes SET file_name = ?, file_path = ? WHERE id = ? AND user_id = ?";
+        final String sql = "UPDATE resumes SET file_name = ?, file_path = ? WHERE resume_id = ? AND user_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, resume.getFileName());
             ps.setString(2, resume.getFilePath());
-            ps.setInt(3, resume.getId());
+            ps.setInt(3, resume.getResumeId());
             ps.setInt(4, resume.getUserId());
 
             int affected = ps.executeUpdate();
@@ -63,7 +63,7 @@ public class ResumeDAO {
 
     /** Get all resumes for a user ordered by upload time descending. */
     public List<Resume> getResumeByUser(int userId) {
-        final String sql = "SELECT id, user_id, file_name, file_path FROM Resumes WHERE user_id = ? ORDER BY uploaded_at DESC";
+        final String sql = "SELECT resume_id, user_id, file_name, file_path FROM resumes WHERE user_id = ? ORDER BY upload_date DESC";
         List<Resume> list = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -83,7 +83,7 @@ public class ResumeDAO {
 
     /** Delete a resume by id. Returns true if deleted. */
     public boolean deleteResume(int resumeId) {
-        final String sql = "DELETE FROM Resumes WHERE id = ?";
+        final String sql = "DELETE FROM resumes WHERE resume_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -97,7 +97,7 @@ public class ResumeDAO {
 
     private Resume mapRow(ResultSet rs) throws SQLException {
         Resume r = new Resume();
-        r.setId(rs.getInt("id"));
+        r.setResumeId(rs.getInt("resume_id"));
         r.setUserId(rs.getInt("user_id"));
         r.setFileName(rs.getString("file_name"));
         r.setFilePath(rs.getString("file_path"));

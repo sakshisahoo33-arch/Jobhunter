@@ -1,39 +1,33 @@
 package com.jobhunter.model;
 
 public class Application {
-    private int id;
+    private int applicationId;
     private int userId;
     private int jobId;
-    private int resumeId;
-    private String coverLetter;
     private String status;
 
     public Application() {
     }
 
-    public Application(int id, int userId, int jobId, int resumeId, String coverLetter, String status) {
-        this.id = id;
+    public Application(int applicationId, int userId, int jobId, String status) {
+        this.applicationId = applicationId;
         this.userId = userId;
         this.jobId = jobId;
-        this.resumeId = resumeId;
-        this.coverLetter = coverLetter;
         this.status = status;
     }
 
-    public Application(int userId, int jobId, int resumeId, String coverLetter, String status) {
+    public Application(int userId, int jobId, String status) {
         this.userId = userId;
         this.jobId = jobId;
-        this.resumeId = resumeId;
-        this.coverLetter = coverLetter;
         this.status = status;
     }
 
-    public int getId() {
-        return id;
+    public int getApplicationId() {
+        return applicationId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setApplicationId(int applicationId) {
+        this.applicationId = applicationId;
     }
 
     public int getUserId() {
@@ -52,22 +46,6 @@ public class Application {
         this.jobId = jobId;
     }
 
-    public int getResumeId() {
-        return resumeId;
-    }
-
-    public void setResumeId(int resumeId) {
-        this.resumeId = resumeId;
-    }
-
-    public String getCoverLetter() {
-        return coverLetter;
-    }
-
-    public void setCoverLetter(String coverLetter) {
-        this.coverLetter = coverLetter;
-    }
-
     public String getStatus() {
         return status;
     }
@@ -79,10 +57,9 @@ public class Application {
     @Override
     public String toString() {
         return "Application{" +
-                "id=" + id +
+                "applicationId=" + applicationId +
                 ", userId=" + userId +
                 ", jobId=" + jobId +
-                ", resumeId=" + resumeId +
                 ", status='" + status + '\'' +
                 '}';
     }

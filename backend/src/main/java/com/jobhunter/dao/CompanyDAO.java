@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DAO for the `Companies` table.
+ * DAO for the `companies` table.
  * <p>
  * Provides CRUD, authentication (login), registration and search operations.
  * All DB access uses prepared statements and try-with-resources to prevent leaks and SQL injection.
@@ -21,15 +21,14 @@ public class CompanyDAO {
 
     /** Register a new company. Returns the created Company with id set, or null on failure. */
     public Company registerCompany(Company company) {
-        final String sql = "INSERT INTO Companies (name, email, password, phone, description) VALUES (?, ?, ?, ?, ?)";
+        final String sql = "INSERT INTO companies (company_name, email, password, industry) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setString(1, company.getName());
+            ps.setString(1, company.getCompanyName());
             ps.setString(2, company.getEmail());
             ps.setString(3, company.getPassword());
-            ps.setString(4, company.getPhone());
-            ps.setString(5, company.getDescription());
+            ps.setString(4, company.getIndustry());
 
             int affected = ps.executeUpdate();
             if (affected == 0) {
@@ -38,7 +37,7 @@ public class CompanyDAO {
 
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (keys.next()) {
-                    company.setId(keys.getInt(1));
+                    company.setCompanyId(keys.getInt(1));
                     return company;
                 }
             }
@@ -51,7 +50,7 @@ public class CompanyDAO {
 
     /** Authenticate company by email and password. Returns Company on success, otherwise null. */
     public Company loginCompany(String email, String password) {
-        final String sql = "SELECT * FROM Companies WHERE email = ? AND password = ?";
+        final String sql = "SELECT * FROM companies WHERE email = ? AND password = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -71,12 +70,12 @@ public class CompanyDAO {
     }
 
     /** Find company by id. */
-    public Company getCompanyById(int id) {
-        final String sql = "SELECT * FROM Companies WHERE id = ?";
+    public Company getCompanyById(int companyId) {
+        final String sql = "SELECT * FROM companies WHERE company_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, id);
+            ps.setInt(1, companyId);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -91,7 +90,7 @@ public class CompanyDAO {
 
     /** Find company by email. */
     public Company getCompanyByEmail(String email) {
-        final String sql = "SELECT * FROM Companies WHERE email = ?";
+        final String sql = "SELECT * FROM companies WHERE email = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -110,7 +109,7 @@ public class CompanyDAO {
 
     /** Return all companies ordered by creation time descending. */
     public List<Company> getAllCompanies() {
-        final String sql = "SELECT * FROM Companies ORDER BY created_at DESC";
+        final String sql = "SELECT * FROM companies ORDER BY created_at DESC";
         List<Company> list = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -127,16 +126,15 @@ public class CompanyDAO {
 
     /** Update company record. Returns true if update affected a row. */
     public boolean updateCompany(Company company) {
-        final String sql = "UPDATE Companies SET name = ?, email = ?, password = ?, phone = ?, description = ? WHERE id = ?";
+        final String sql = "UPDATE companies SET company_name = ?, email = ?, password = ?, industry = ? WHERE company_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, company.getName());
+            ps.setString(1, company.getCompanyName());
             ps.setString(2, company.getEmail());
             ps.setString(3, company.getPassword());
-            ps.setString(4, company.getPhone());
-            ps.setString(5, company.getDescription());
-            ps.setInt(6, company.getId());
+            ps.setString(4, company.getIndustry());
+            ps.setInt(5, company.getCompanyId());
 
             int affected = ps.executeUpdate();
             return affected > 0;
@@ -146,12 +144,12 @@ public class CompanyDAO {
     }
 
     /** Delete a company by id. Returns true if deletion succeeded. */
-    public boolean deleteCompany(int id) {
-        final String sql = "DELETE FROM Companies WHERE id = ?";
+    public boolean deleteCompany(int companyId) {
+        final String sql = "DELETE FROM companies WHERE company_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, id);
+            ps.setInt(1, companyId);
             int affected = ps.executeUpdate();
             return affected > 0;
         } catch (SQLException e) {
@@ -161,7 +159,7 @@ public class CompanyDAO {
 
     /** Check whether an email is already registered. */
     public boolean emailExists(String email) {
-        final String sql = "SELECT 1 FROM Companies WHERE email = ?";
+        final String sql = "SELECT 1 FROM companies WHERE email = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -176,7 +174,7 @@ public class CompanyDAO {
 
     /** Search companies by name (wildcard). */
     public List<Company> searchByName(String query) {
-        final String sql = "SELECT * FROM Companies WHERE name LIKE ? ORDER BY name";
+        final String sql = "SELECT * FROM companies WHERE company_name LIKE ? ORDER BY company_name";
         String wildcard = "%" + query + "%";
         List<Company> list = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection();
@@ -197,12 +195,11 @@ public class CompanyDAO {
     /** Map current row of ResultSet to Company model. */
     private Company mapRow(ResultSet rs) throws SQLException {
         Company c = new Company();
-        c.setId(rs.getInt("id"));
-        c.setName(rs.getString("name"));
+        c.setCompanyId(rs.getInt("company_id"));
+        c.setCompanyName(rs.getString("company_name"));
         c.setEmail(rs.getString("email"));
         c.setPassword(rs.getString("password"));
-        c.setPhone(rs.getString("phone"));
-        c.setDescription(rs.getString("description"));
+        c.setIndustry(rs.getString("industry"));
         return c;
     }
 }

@@ -3,6 +3,7 @@ package com.jobhunter.controller;
 import com.google.gson.Gson;
 import com.jobhunter.dao.SavedJobDAO;
 import com.jobhunter.model.SavedJob;
+import com.jobhunter.model.User;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -32,8 +33,8 @@ public class SavedJobServlet extends HttpServlet {
         }
 
         try {
-            Object user = session.getAttribute("user");
-            int userId = (int) user.getClass().getMethod("getId").invoke(user);
+            User user = (User) session.getAttribute("user");
+            int userId = user.getUserId();
             String jobIdStr = req.getParameter("jobId");
             if (jobIdStr == null) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -71,8 +72,8 @@ public class SavedJobServlet extends HttpServlet {
         }
 
         try {
-            Object user = session.getAttribute("user");
-            int userId = (int) user.getClass().getMethod("getId").invoke(user);
+            User user = (User) session.getAttribute("user");
+            int userId = user.getUserId();
             List<SavedJob> list = savedJobDAO.getSavedJobs(userId);
             resp.setStatus(HttpServletResponse.SC_OK);
             resp.getWriter().write(gson.toJson(list));
@@ -93,8 +94,8 @@ public class SavedJobServlet extends HttpServlet {
         }
 
         try {
-            Object user = session.getAttribute("user");
-            int userId = (int) user.getClass().getMethod("getId").invoke(user);
+            User user = (User) session.getAttribute("user");
+            int userId = user.getUserId();
             String jobIdStr = req.getParameter("jobId");
             if (jobIdStr == null) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);

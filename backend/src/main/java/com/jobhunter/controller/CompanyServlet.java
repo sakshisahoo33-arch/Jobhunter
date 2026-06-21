@@ -51,14 +51,17 @@ public class CompanyServlet extends HttpServlet {
             }
         } catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Internal server error")));
+            resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Internal server error: " + e.getMessage())));
         }
     }
 
     private void handleRegister(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String name = req.getParameter("name");
+        String name = req.getParameter("companyName");
+        if (name == null) name = req.getParameter("name");
         String email = req.getParameter("email");
         String password = req.getParameter("password");
+        String industry = req.getParameter("industry");
+
         if (name == null || email == null || password == null) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Missing required fields")));
@@ -72,11 +75,10 @@ public class CompanyServlet extends HttpServlet {
         }
 
         Company c = new Company();
-        c.setName(name);
+        c.setCompanyName(name);
         c.setEmail(email);
         c.setPassword(password);
-        c.setPhone(req.getParameter("phone"));
-        c.setDescription(req.getParameter("description"));
+        c.setIndustry(industry);
 
         Company created = companyDAO.registerCompany(c);
         if (created == null) {
@@ -96,13 +98,16 @@ public class CompanyServlet extends HttpServlet {
             resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Company authentication required")));
             return;
         }
-        Object company = session.getAttribute("company");
-        int companyId = (int) company.getClass().getMethod("getId").invoke(company);
+        Company company = (Company) session.getAttribute("company");
+        int companyId = company.getCompanyId();
 
         String title = req.getParameter("title");
         String description = req.getParameter("description");
         String location = req.getParameter("location");
-        String salary = req.getParameter("salary");
+        String salaryMinStr = req.getParameter("salaryMin");
+        if (salaryMinStr == null) salaryMinStr = req.getParameter("salary_min");
+        String salaryMaxStr = req.getParameter("salaryMax");
+        if (salaryMaxStr == null) salaryMaxStr = req.getParameter("salary_max");
 
         if (title == null || title.isBlank()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -110,12 +115,16 @@ public class CompanyServlet extends HttpServlet {
             return;
         }
 
+        double salaryMin = (salaryMinStr != null && !salaryMinStr.isBlank()) ? Double.parseDouble(salaryMinStr) : 0.0;
+        double salaryMax = (salaryMaxStr != null && !salaryMaxStr.isBlank()) ? Double.parseDouble(salaryMaxStr) : 0.0;
+
         Job job = new Job();
         job.setCompanyId(companyId);
         job.setTitle(title);
         job.setDescription(description);
         job.setLocation(location);
-        job.setSalary(salary);
+        job.setSalaryMin(salaryMin);
+        job.setSalaryMax(salaryMax);
 
         Job created = jobDAO.createJob(job);
         if (created == null) {
@@ -135,8 +144,8 @@ public class CompanyServlet extends HttpServlet {
             resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Company authentication required")));
             return;
         }
-        Object company = session.getAttribute("company");
-        int companyId = (int) company.getClass().getMethod("getId").invoke(company);
+        Company company = (Company) session.getAttribute("company");
+        int companyId = company.getCompanyId();
 
         String idStr = req.getParameter("id");
         if (idStr == null) {
@@ -156,7 +165,18 @@ public class CompanyServlet extends HttpServlet {
         job.setTitle(req.getParameter("title"));
         job.setDescription(req.getParameter("description"));
         job.setLocation(req.getParameter("location"));
-        job.setSalary(req.getParameter("salary"));
+
+        String salaryMinStr = req.getParameter("salaryMin");
+        if (salaryMinStr == null) salaryMinStr = req.getParameter("salary_min");
+        String salaryMaxStr = req.getParameter("salaryMax");
+        if (salaryMaxStr == null) salaryMaxStr = req.getParameter("salary_max");
+
+        if (salaryMinStr != null && !salaryMinStr.isBlank()) {
+            job.setSalaryMin(Double.parseDouble(salaryMinStr));
+        }
+        if (salaryMaxStr != null && !salaryMaxStr.isBlank()) {
+            job.setSalaryMax(Double.parseDouble(salaryMaxStr));
+        }
 
         boolean ok = jobDAO.updateJob(job);
         resp.setStatus(ok ? HttpServletResponse.SC_OK : HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -170,8 +190,8 @@ public class CompanyServlet extends HttpServlet {
             resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Company authentication required")));
             return;
         }
-        Object company = session.getAttribute("company");
-        int companyId = (int) company.getClass().getMethod("getId").invoke(company);
+        Company company = (Company) session.getAttribute("company");
+        int companyId = company.getCompanyId();
 
         String idStr = req.getParameter("id");
         if (idStr == null) {
@@ -188,15 +208,14 @@ public class CompanyServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // return posted jobs for authenticated company or by companyId param
         resp.setContentType("application/json");
         try {
             HttpSession session = req.getSession(false);
             String companyIdParam = req.getParameter("companyId");
             List<Job> jobs;
             if (session != null && session.getAttribute("company") != null && companyIdParam == null) {
-                Object company = session.getAttribute("company");
-                int companyId = (int) company.getClass().getMethod("getId").invoke(company);
+                Company company = (Company) session.getAttribute("company");
+                int companyId = company.getCompanyId();
                 jobs = jobDAO.getJobsByCompanyId(companyId);
             } else if (companyIdParam != null) {
                 int companyId = Integer.parseInt(companyIdParam);
@@ -211,7 +230,7 @@ public class CompanyServlet extends HttpServlet {
             resp.getWriter().write(gson.toJson(jobs));
         } catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Internal server error")));
+            resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Internal server error: " + e.getMessage())));
         }
     }
 }

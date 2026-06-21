@@ -12,25 +12,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DAO for the `Skills`, `UserSkills` and `JobSkills` tables.
+ * DAO for the `skills`, `user_skills` and `job_skills` tables.
  */
 public class SkillDAO {
 
     /** Add a new skill. Returns the Skill with generated id, or null on failure. */
     public Skill addSkill(Skill skill) {
-        final String sql = "INSERT INTO Skills (name, description) VALUES (?, ?)";
+        final String sql = "INSERT INTO skills (skill_name) VALUES (?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setString(1, skill.getName());
-            ps.setString(2, skill.getDescription());
+            ps.setString(1, skill.getSkillName());
 
             int affected = ps.executeUpdate();
             if (affected == 0) return null;
 
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (keys.next()) {
-                    skill.setId(keys.getInt(1));
+                    skill.setSkillId(keys.getInt(1));
                     return skill;
                 }
             }
@@ -42,7 +41,7 @@ public class SkillDAO {
 
     /** Return all skills ordered by name. */
     public List<Skill> getAllSkills() {
-        final String sql = "SELECT id, name, description FROM Skills ORDER BY name";
+        final String sql = "SELECT skill_id, skill_name FROM skills ORDER BY skill_name";
         List<Skill> list = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -60,8 +59,8 @@ public class SkillDAO {
 
     /** Assign a skill to a user. Returns true if assignment was created or already exists. */
     public boolean assignSkillToUser(int userId, int skillId) {
-        final String check = "SELECT 1 FROM UserSkills WHERE user_id = ? AND skill_id = ?";
-        final String insert = "INSERT INTO UserSkills (user_id, skill_id) VALUES (?, ?)";
+        final String check = "SELECT 1 FROM user_skills WHERE user_id = ? AND skill_id = ?";
+        final String insert = "INSERT INTO user_skills (user_id, skill_id) VALUES (?, ?)";
         try (Connection conn = DBConnection.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(check)) {
                 ps.setInt(1, userId);
@@ -84,8 +83,8 @@ public class SkillDAO {
 
     /** Assign a skill to a job. Returns true if assignment was created or already exists. */
     public boolean assignSkillToJob(int jobId, int skillId) {
-        final String check = "SELECT 1 FROM JobSkills WHERE job_id = ? AND skill_id = ?";
-        final String insert = "INSERT INTO JobSkills (job_id, skill_id) VALUES (?, ?)";
+        final String check = "SELECT 1 FROM job_skills WHERE job_id = ? AND skill_id = ?";
+        final String insert = "INSERT INTO job_skills (job_id, skill_id) VALUES (?, ?)";
         try (Connection conn = DBConnection.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(check)) {
                 ps.setInt(1, jobId);
@@ -108,9 +107,8 @@ public class SkillDAO {
 
     private Skill mapRow(ResultSet rs) throws SQLException {
         Skill s = new Skill();
-        s.setId(rs.getInt("id"));
-        s.setName(rs.getString("name"));
-        s.setDescription(rs.getString("description"));
+        s.setSkillId(rs.getInt("skill_id"));
+        s.setSkillName(rs.getString("skill_name"));
         return s;
     }
 }

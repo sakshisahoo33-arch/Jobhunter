@@ -3,6 +3,7 @@ package com.jobhunter.controller;
 import com.google.gson.Gson;
 import com.jobhunter.dao.ResumeDAO;
 import com.jobhunter.model.Resume;
+import com.jobhunter.model.User;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -39,8 +40,8 @@ public class ResumeUploadServlet extends HttpServlet {
         }
 
         try {
-            Object user = session.getAttribute("user");
-            int userId = (int) user.getClass().getMethod("getId").invoke(user);
+            User user = (User) session.getAttribute("user");
+            int userId = user.getUserId();
 
             Part filePart = req.getPart("file");
             if (filePart == null || filePart.getSize() == 0) {

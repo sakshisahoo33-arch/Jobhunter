@@ -12,13 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DAO for the `Jobs` table. Uses prepared statements and try-with-resources.
+ * DAO for the `jobs` table. Uses prepared statements and try-with-resources.
  */
 public class JobDAO {
 
     /** Create a new job and return it with generated id, or null on failure. */
     public Job createJob(Job job) {
-        final String sql = "INSERT INTO Jobs (company_id, title, description, location, salary, status) VALUES (?, ?, ?, ?, ?, ?)";
+        final String sql = "INSERT INTO jobs (company_id, title, description, location, salary_min, salary_max) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -26,15 +26,15 @@ public class JobDAO {
             ps.setString(2, job.getTitle());
             ps.setString(3, job.getDescription());
             ps.setString(4, job.getLocation());
-            ps.setString(5, job.getSalary());
-            ps.setString(6, job.getStatus());
+            ps.setDouble(5, job.getSalaryMin());
+            ps.setDouble(6, job.getSalaryMax());
 
             int affected = ps.executeUpdate();
             if (affected == 0) return null;
 
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (keys.next()) {
-                    job.setId(keys.getInt(1));
+                    job.setJobId(keys.getInt(1));
                     return job;
                 }
             }
@@ -46,12 +46,12 @@ public class JobDAO {
     }
 
     /** Get a job by id. */
-    public Job getJobById(int id) {
-        final String sql = "SELECT id, company_id, title, description, location, salary, status FROM Jobs WHERE id = ?";
+    public Job getJobById(int jobId) {
+        final String sql = "SELECT job_id, company_id, title, description, location, salary_min, salary_max FROM jobs WHERE job_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, id);
+            ps.setInt(1, jobId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return mapRow(rs);
             }
@@ -63,7 +63,7 @@ public class JobDAO {
 
     /** Get all jobs. */
     public List<Job> getAllJobs() {
-        final String sql = "SELECT id, company_id, title, description, location, salary, status FROM Jobs ORDER BY id DESC";
+        final String sql = "SELECT job_id, company_id, title, description, location, salary_min, salary_max FROM jobs ORDER BY job_id DESC";
         List<Job> list = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -78,7 +78,7 @@ public class JobDAO {
 
     /** Get jobs for a specific company. */
     public List<Job> getJobsByCompanyId(int companyId) {
-        final String sql = "SELECT id, company_id, title, description, location, salary, status FROM Jobs WHERE company_id = ? ORDER BY id DESC";
+        final String sql = "SELECT job_id, company_id, title, description, location, salary_min, salary_max FROM jobs WHERE company_id = ? ORDER BY job_id DESC";
         List<Job> list = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -95,7 +95,7 @@ public class JobDAO {
 
     /** Search jobs by title, description or location using wildcard. */
     public List<Job> searchJobs(String q) {
-        final String sql = "SELECT id, company_id, title, description, location, salary, status FROM Jobs WHERE title LIKE ? OR description LIKE ? OR location LIKE ? ORDER BY id DESC";
+        final String sql = "SELECT job_id, company_id, title, description, location, salary_min, salary_max FROM jobs WHERE title LIKE ? OR description LIKE ? OR location LIKE ? ORDER BY job_id DESC";
         String w = "%" + q + "%";
         List<Job> list = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection();
@@ -115,16 +115,16 @@ public class JobDAO {
 
     /** Update job. Returns true if updated. */
     public boolean updateJob(Job job) {
-        final String sql = "UPDATE Jobs SET title = ?, description = ?, location = ?, salary = ?, status = ? WHERE id = ? AND company_id = ?";
+        final String sql = "UPDATE jobs SET title = ?, description = ?, location = ?, salary_min = ?, salary_max = ? WHERE job_id = ? AND company_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, job.getTitle());
             ps.setString(2, job.getDescription());
             ps.setString(3, job.getLocation());
-            ps.setString(4, job.getSalary());
-            ps.setString(5, job.getStatus());
-            ps.setInt(6, job.getId());
+            ps.setDouble(4, job.getSalaryMin());
+            ps.setDouble(5, job.getSalaryMax());
+            ps.setInt(6, job.getJobId());
             ps.setInt(7, job.getCompanyId());
 
             int affected = ps.executeUpdate();
@@ -135,12 +135,12 @@ public class JobDAO {
     }
 
     /** Delete a job by id (and companyId to ensure ownership). */
-    public boolean deleteJob(int id, int companyId) {
-        final String sql = "DELETE FROM Jobs WHERE id = ? AND company_id = ?";
+    public boolean deleteJob(int jobId, int companyId) {
+        final String sql = "DELETE FROM jobs WHERE job_id = ? AND company_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, id);
+            ps.setInt(1, jobId);
             ps.setInt(2, companyId);
             int affected = ps.executeUpdate();
             return affected > 0;
@@ -151,13 +151,13 @@ public class JobDAO {
 
     private Job mapRow(ResultSet rs) throws SQLException {
         Job j = new Job();
-        j.setId(rs.getInt("id"));
+        j.setJobId(rs.getInt("job_id"));
         j.setCompanyId(rs.getInt("company_id"));
         j.setTitle(rs.getString("title"));
         j.setDescription(rs.getString("description"));
         j.setLocation(rs.getString("location"));
-        j.setSalary(rs.getString("salary"));
-        j.setStatus(rs.getString("status"));
+        j.setSalaryMin(rs.getDouble("salary_min"));
+        j.setSalaryMax(rs.getDouble("salary_max"));
         return j;
     }
 }

@@ -3,6 +3,7 @@ package com.jobhunter.controller;
 import com.google.gson.Gson;
 import com.jobhunter.dao.ApplicationDAO;
 import com.jobhunter.model.Application;
+import com.jobhunter.model.User;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -31,13 +32,10 @@ public class ApplyServlet extends HttpServlet {
         }
 
         try {
-            Object user = session.getAttribute("user");
-            int userId = (int) user.getClass().getMethod("getId").invoke(user);
+            User user = (User) session.getAttribute("user");
+            int userId = user.getUserId();
 
             String jobIdStr = req.getParameter("jobId");
-            String resumeIdStr = req.getParameter("resumeId");
-            String coverLetter = req.getParameter("coverLetter");
-
             if (jobIdStr == null) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Missing jobId")));
@@ -45,7 +43,6 @@ public class ApplyServlet extends HttpServlet {
             }
 
             int jobId = Integer.parseInt(jobIdStr);
-            int resumeId = (resumeIdStr != null) ? Integer.parseInt(resumeIdStr) : 0;
 
             if (applicationDAO.hasAlreadyApplied(userId, jobId)) {
                 resp.setStatus(HttpServletResponse.SC_CONFLICT);
@@ -56,8 +53,7 @@ public class ApplyServlet extends HttpServlet {
             Application a = new Application();
             a.setUserId(userId);
             a.setJobId(jobId);
-            a.setResumeId(resumeId);
-            a.setCoverLetter(coverLetter);
+            a.setStatus("Pending");
 
             Application created = applicationDAO.applyJob(a);
             if (created == null) {
@@ -73,7 +69,7 @@ public class ApplyServlet extends HttpServlet {
             resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Invalid numeric parameter")));
         } catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Internal server error")));
+            resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Internal server error: " + e.getMessage())));
         }
     }
 
@@ -88,14 +84,14 @@ public class ApplyServlet extends HttpServlet {
         }
 
         try {
-            Object user = session.getAttribute("user");
-            int userId = (int) user.getClass().getMethod("getId").invoke(user);
+            User user = (User) session.getAttribute("user");
+            int userId = user.getUserId();
             var list = applicationDAO.getApplicationsByUser(userId);
             resp.setStatus(HttpServletResponse.SC_OK);
             resp.getWriter().write(gson.toJson(list));
         } catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Internal server error")));
+            resp.getWriter().write(gson.toJson(Map.of("success", false, "message", "Internal server error: " + e.getMessage())));
         }
     }
 }

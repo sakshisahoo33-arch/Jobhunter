@@ -1,47 +1,44 @@
 package com.jobhunter.model;
 
 public class Company {
-    private int id;
-    private String name;
+    private int companyId;
+    private String companyName;
     private String email;
     private String password;
-    private String phone;
-    private String description;
+    private String industry;
 
     public Company() {
     }
 
-    public Company(int id, String name, String email, String password, String phone, String description) {
-        this.id = id;
-        this.name = name;
+    public Company(int companyId, String companyName, String email, String password, String industry) {
+        this.companyId = companyId;
+        this.companyName = companyName;
         this.email = email;
         this.password = password;
-        this.phone = phone;
-        this.description = description;
+        this.industry = industry;
     }
 
-    public Company(String name, String email, String password, String phone, String description) {
-        this.name = name;
+    public Company(String companyName, String email, String password, String industry) {
+        this.companyName = companyName;
         this.email = email;
         this.password = password;
-        this.phone = phone;
-        this.description = description;
+        this.industry = industry;
     }
 
-    public int getId() {
-        return id;
+    public int getCompanyId() {
+        return companyId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setCompanyId(int companyId) {
+        this.companyId = companyId;
     }
 
-    public String getName() {
-        return name;
+    public String getCompanyName() {
+        return companyName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
     public String getEmail() {
@@ -60,30 +57,21 @@ public class Company {
         this.password = password;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getIndustry() {
+        return industry;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public void setIndustry(String industry) {
+        this.industry = industry;
     }
 
     @Override
     public String toString() {
         return "Company{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
+                "companyId=" + companyId +
+                ", companyName='" + companyName + '\'' +
                 ", email='" + email + '\'' +
-                ", phone='" + phone + '\'' +
-                ", description='" + description + '\'' +
+                ", industry='" + industry + '\'' +
                 '}';
     }
 }
